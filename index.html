@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Mage Defense (Prototype)</title>
+  <link rel="stylesheet" href="style.css?v=20260320a" />
+</head>
+<body>
+  <div class="app-shell">
+    <h1 id="appTitle">Math Mage Defense — Prototype</h1>
+
+    <div class="hud-row">
+      <div><strong>Castle HP:</strong> <span id="castleHp">10</span></div>
+      <div><strong>Wave:</strong> <span id="waveLabel">1</span></div>
+      <div><strong>Status:</strong> <span id="statusLabel">Running</span></div>
+      <div class="xp-block">
+        <div><strong>Mage Level:</strong> <span id="playerLevel">1</span></div>
+        <div class="xp-bar" aria-label="Experience progress">
+          <div id="xpBarFill" class="xp-bar-fill"></div>
+        </div>
+        <div><span id="xpText">0 / 14 XP</span></div>
+      </div>
+      <div><strong>Spell:</strong> <span id="spellStatus">Locked</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="2200" height="1000" aria-label="Math Mage Defense game board"></canvas>
+
+    <div class="gesture-row">
+      <button id="resetButton" type="button" class="secondary">Reset</button>
+      <button id="backToMapButton" type="button" class="secondary">Back to Map</button>
+      <button id="pauseButton" type="button" class="secondary">Pause</button>
+      <button id="clearEquationButton" type="button" class="secondary">Clear Equation</button>
+      <button id="castSpellButton" type="button" class="secondary">Cast Spell</button>
+      <label for="profileSelect"><strong>Profile</strong></label>
+      <select id="profileSelect"></select>
+      <button id="newProfileButton" type="button" class="secondary">New Profile</button>
+      <label for="operationMode"><strong>Mode</strong></label>
+      <select id="operationMode">
+        <option value="add-sub">Add/Subtract</option>
+        <option value="multiply">Multiply</option>
+        <option value="divide">Divide</option>
+      </select>
+      <label for="speedSlider"><strong>Speed</strong></label>
+      <input id="speedSlider" type="range" min="0.25" max="1.50" step="0.05" value="1.00" />
+      <span id="speedValue">1.00x</span>
+      <span>Click tokens or use keyboard/numpad: Number(s) → operator → Number. Press Enter or Cast Spell for large spell equations. At Mage Level 10, the Mage Tower shows its own puzzle and you enter only the result.</span>
+    </div>
+
+    <div class="readout">
+      <div><strong>Equation:</strong> <span id="equationText">Select tokens: Number(s) → Operator → Number</span></div>
+      <div><strong>Last Cast:</strong> <span id="castResult">No casts yet.</span></div>
+      <p>
+        Goal: Select tokens to build an equation (first number can use up to 2 digits). If your result matches an enemy
+        target in any lane, the mage casts automatically. Press Esc to clear selection. Large unlocked spell equations may
+        require Enter or Cast Spell to confirm. At Mage Level 10, solve the Mage Tower puzzle shown near the tower and enter only its result.
+      </p>
+    </div>
+
+    <div id="spellUnlockOverlay" class="spell-unlock hidden" aria-live="polite">
+      <div class="spell-unlock-card">
+        <img
+          id="spellUnlockScroll"
+          class="spell-unlock-scroll"
+          src="assets/sprites/PaperParchmentScroll.png"
+          alt="Spell unlock parchment"
+        />
+        <canvas id="spellUnlockEffectCanvas" class="spell-unlock-effect" width="760" height="760"></canvas>
+        <div class="spell-unlock-copy">
+          <p id="spellUnlockTitle" class="spell-unlock-title">New Spell Unlocked</p>
+          <h2 id="spellUnlockName" class="spell-unlock-name">Chain Lightning</h2>
+          <p id="spellUnlockDescription" class="spell-unlock-description"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="debugMenu" class="debug-menu hidden" aria-live="polite">
+      <div class="debug-menu-card">
+        <div class="debug-menu-header">
+          <h2>Debug Menu</h2>
+          <button id="closeDebugMenuButton" type="button" class="secondary">Close</button>
+        </div>
+        <p class="debug-menu-copy">Testing tools for grown-up wizards.</p>
+        <div class="debug-menu-actions">
+          <button id="unlockLevelsButton" type="button" class="secondary">Unlock All Levels</button>
+          <button id="debugGrantXpButton" type="button" class="secondary">Gain 14 XP</button>
+          <button id="debugResetProgressButton" type="button" class="secondary">Reset Progression</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js?v=20260320a"></script>
+</body>
+</html>
