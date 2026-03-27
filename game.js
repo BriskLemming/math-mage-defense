@@ -27,6 +27,7 @@
   const CHAIN_LIGHTNING_EFFECT_DURATION_SECONDS = 0.45;
   const LEVEL_UP_EFFECT_DURATION_SECONDS = 1.6;
   const LEVEL_COMPLETE_RETURN_SECONDS = 1.6;
+  const MAP_GUIDE_PULSE_SECONDS = 1.4;
   const XP_PER_LEVEL = 14;
   const CHAIN_LIGHTNING_UNLOCK_LEVEL = 4;
   const MAGE_TOWER_UNLOCK_LEVEL = 10;
@@ -1320,6 +1321,13 @@
     return canvas.width + offscreenMargin;
   }
 
+  function isCoarsePointerDevice() {
+    return Boolean(
+      window.matchMedia
+      && window.matchMedia("(pointer: coarse)").matches,
+    );
+  }
+
   function getMageTowerLayout() {
     const gameScale = getGameScale();
     const towerWidth = 104 * gameScale;
@@ -2063,9 +2071,19 @@
     gameResult = "running";
     statusLabelElement.textContent = "Map";
     waveLabelElement.textContent = "-";
-    equationTextElement.textContent = "World Map: select an island level";
-    castResultElement.textContent = "Choose an unlocked island to begin.";
+    equationTextElement.textContent = "World Map: tap the glowing island to begin";
+    castResultElement.textContent = `Start with ${LEVELS[getNextPlayableLevelIndex()].name}.`;
     castResultElement.classList.remove("ok", "bad");
+  }
+
+  function getNextPlayableLevelIndex() {
+    for (let levelIndex = 0; levelIndex <= highestUnlockedLevel; levelIndex += 1) {
+      if (!completedLevelIndices.has(levelIndex)) {
+        return levelIndex;
+      }
+    }
+
+    return Math.min(highestUnlockedLevel, LEVELS.length - 1);
   }
 
   function getIslandScreenPoint(level) {
@@ -2076,7 +2094,7 @@
   }
 
   function handleWorldMapClick(point) {
-    const selectRadius = 26;
+    const selectRadius = isCoarsePointerDevice() ? 44 : 30;
     for (let levelIndex = 0; levelIndex < LEVELS.length; levelIndex += 1) {
       const level = LEVELS[levelIndex];
       const islandPoint = getIslandScreenPoint(level);
@@ -3301,6 +3319,12 @@
 
   function drawWorldMapScene() {
     context2d.clearRect(0, 0, canvas.width, canvas.height);
+    const nextPlayableLevelIndex = getNextPlayableLevelIndex();
+    const nextPlayableLevel = LEVELS[nextPlayableLevelIndex];
+    const nextPlayablePoint = getIslandScreenPoint(nextPlayableLevel);
+    const pulsePhase = (performance.now() / 1000) / MAP_GUIDE_PULSE_SECONDS;
+    const pulseAlpha = 0.42 + ((Math.sin(pulsePhase * Math.PI * 2) + 1) * 0.22);
+    const pulseRadius = 26 + ((Math.sin(pulsePhase * Math.PI * 2) + 1) * 8);
 
     context2d.fillStyle = "#0b122b";
     context2d.fillRect(0, 0, canvas.width, canvas.height);
@@ -3316,23 +3340,47 @@
       context2d.drawImage(spriteAssets.worldMap, drawX, drawY, drawWidth, drawHeight);
     }
 
-    context2d.fillStyle = "rgba(10, 18, 44, 0.55)";
-    context2d.fillRect(20, 20, 520, 110);
+    context2d.fillStyle = "rgba(10, 18, 44, 0.58)";
+    context2d.fillRect(20, 20, 560, 132);
     context2d.strokeStyle = "rgba(155, 182, 255, 0.8)";
     context2d.lineWidth = 2;
-    context2d.strokeRect(20, 20, 520, 110);
+    context2d.strokeRect(20, 20, 560, 132);
 
     context2d.fillStyle = "#e7edff";
     context2d.font = "bold 28px Segoe UI";
     context2d.fillText("World Map", 40, 62);
     context2d.font = "16px Segoe UI";
-    context2d.fillText("Select an island level. Higher islands are tougher and faster.", 40, 95);
+    context2d.fillText("Tap the glowing island to start. Higher islands are tougher and faster.", 40, 95);
+    context2d.fillStyle = "#ffd579";
+    context2d.font = "bold 18px Segoe UI";
+    context2d.fillText(`Start here: ${nextPlayableLevel.name}`, 40, 126);
+
+    context2d.save();
+    context2d.setLineDash([10, 10]);
+    context2d.strokeStyle = `rgba(255, 213, 121, ${Math.min(0.95, pulseAlpha + 0.08)})`;
+    context2d.lineWidth = 4;
+    context2d.beginPath();
+    context2d.moveTo(270, 138);
+    context2d.lineTo(nextPlayablePoint.x - 28, nextPlayablePoint.y - 16);
+    context2d.stroke();
+    context2d.restore();
 
     for (let levelIndex = 0; levelIndex < LEVELS.length; levelIndex += 1) {
       const level = LEVELS[levelIndex];
       const point = getIslandScreenPoint(level);
       const isUnlocked = levelIndex <= highestUnlockedLevel;
       const isCompleted = completedLevelIndices.has(levelIndex);
+      const isNextPlayable = levelIndex === nextPlayableLevelIndex;
+
+      if (isNextPlayable) {
+        context2d.save();
+        context2d.strokeStyle = `rgba(255, 226, 131, ${pulseAlpha})`;
+        context2d.lineWidth = 8;
+        context2d.beginPath();
+        context2d.arc(point.x, point.y, pulseRadius, 0, Math.PI * 2);
+        context2d.stroke();
+        context2d.restore();
+      }
 
       context2d.beginPath();
       context2d.arc(point.x, point.y, 18, 0, Math.PI * 2);
@@ -3340,6 +3388,8 @@
         context2d.fillStyle = "rgba(120, 125, 140, 0.9)";
       } else if (isCompleted) {
         context2d.fillStyle = "rgba(96, 218, 147, 0.95)";
+      } else if (isNextPlayable) {
+        context2d.fillStyle = "rgba(255, 226, 131, 0.98)";
       } else {
         context2d.fillStyle = "rgba(255, 200, 104, 0.95)";
       }
@@ -3363,6 +3413,15 @@
       context2d.font = "12px Segoe UI";
       context2d.strokeText(`Speed ${level.baseSpeedMultiplier.toFixed(2)}x`, point.x + 24, point.y + 14);
       context2d.fillText(`Speed ${level.baseSpeedMultiplier.toFixed(2)}x`, point.x + 24, point.y + 14);
+
+      if (isNextPlayable) {
+        context2d.strokeStyle = "rgba(39, 28, 4, 0.9)";
+        context2d.lineWidth = 4;
+        context2d.fillStyle = "#ffe28a";
+        context2d.font = "bold 16px Segoe UI";
+        context2d.strokeText("START HERE", point.x - 8, point.y - 28);
+        context2d.fillText("START HERE", point.x - 8, point.y - 28);
+      }
     }
 
     context2d.textAlign = "left";

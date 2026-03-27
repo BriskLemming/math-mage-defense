@@ -8,53 +8,45 @@
 </head>
 <body>
   <div class="app-shell">
-    <h1 id="appTitle">Math Mage Defense — Prototype</h1>
+    <div class="game-stage">
+      <canvas id="gameCanvas" width="2200" height="1000" aria-label="Math Mage Defense game board"></canvas>
 
-    <div class="hud-row">
-      <div><strong>Castle HP:</strong> <span id="castleHp">10</span></div>
-      <div><strong>Wave:</strong> <span id="waveLabel">1</span></div>
-      <div><strong>Status:</strong> <span id="statusLabel">Running</span></div>
-      <div class="xp-block">
-        <div><strong>Mage Level:</strong> <span id="playerLevel">1</span></div>
-        <div class="xp-bar" aria-label="Experience progress">
-          <div id="xpBarFill" class="xp-bar-fill"></div>
+      <div class="game-top-bar" aria-label="Game controls and status">
+        <h1 id="appTitle" class="title-chip">Math Mage Defense</h1>
+        <div class="hud-chip"><strong>HP</strong> <span id="castleHp">10</span></div>
+        <div class="hud-chip"><strong>Wave</strong> <span id="waveLabel">1</span></div>
+        <div class="hud-chip"><strong>Status</strong> <span id="statusLabel">Running</span></div>
+        <div class="hud-chip xp-chip">
+          <span><strong>Lv</strong> <span id="playerLevel">1</span></span>
+          <div class="xp-bar" aria-label="Experience progress">
+            <div id="xpBarFill" class="xp-bar-fill"></div>
+          </div>
+          <span id="xpText">0 / 14 XP</span>
         </div>
-        <div><span id="xpText">0 / 14 XP</span></div>
+        <div class="hud-chip"><strong>Spell</strong> <span id="spellStatus">Locked</span></div>
+        <button id="resetButton" type="button" class="secondary compact-button">Reset</button>
+        <button id="backToMapButton" type="button" class="secondary compact-button">Map</button>
+        <button id="pauseButton" type="button" class="secondary compact-button">Pause</button>
+        <button id="clearEquationButton" type="button" class="secondary compact-button">Clear</button>
+        <button id="castSpellButton" type="button" class="secondary compact-button">Cast</button>
+        <label for="profileSelect" class="inline-label"><strong>Profile</strong></label>
+        <select id="profileSelect"></select>
+        <button id="newProfileButton" type="button" class="secondary compact-button">New</button>
+        <label for="operationMode" class="inline-label"><strong>Mode</strong></label>
+        <select id="operationMode">
+          <option value="add-sub">Add/Subtract</option>
+          <option value="multiply">Multiply</option>
+          <option value="divide">Divide</option>
+        </select>
+        <label for="speedSlider" class="inline-label"><strong>Speed</strong></label>
+        <input id="speedSlider" type="range" min="0.25" max="1.50" step="0.05" value="1.00" />
+        <span id="speedValue" class="hud-chip">1.00x</span>
       </div>
-      <div><strong>Spell:</strong> <span id="spellStatus">Locked</span></div>
-    </div>
 
-    <canvas id="gameCanvas" width="2200" height="1000" aria-label="Math Mage Defense game board"></canvas>
-
-    <div class="gesture-row">
-      <button id="resetButton" type="button" class="secondary">Reset</button>
-      <button id="backToMapButton" type="button" class="secondary">Back to Map</button>
-      <button id="pauseButton" type="button" class="secondary">Pause</button>
-      <button id="clearEquationButton" type="button" class="secondary">Clear Equation</button>
-      <button id="castSpellButton" type="button" class="secondary">Cast Spell</button>
-      <label for="profileSelect"><strong>Profile</strong></label>
-      <select id="profileSelect"></select>
-      <button id="newProfileButton" type="button" class="secondary">New Profile</button>
-      <label for="operationMode"><strong>Mode</strong></label>
-      <select id="operationMode">
-        <option value="add-sub">Add/Subtract</option>
-        <option value="multiply">Multiply</option>
-        <option value="divide">Divide</option>
-      </select>
-      <label for="speedSlider"><strong>Speed</strong></label>
-      <input id="speedSlider" type="range" min="0.25" max="1.50" step="0.05" value="1.00" />
-      <span id="speedValue">1.00x</span>
-      <span>Click tokens or use keyboard/numpad: Number(s) → operator → Number. Press Enter or Cast Spell for large spell equations. At Mage Level 10, the Mage Tower shows its own puzzle and you enter only the result.</span>
-    </div>
-
-    <div class="readout">
-      <div><strong>Equation:</strong> <span id="equationText">Select tokens: Number(s) → Operator → Number</span></div>
-      <div><strong>Last Cast:</strong> <span id="castResult">No casts yet.</span></div>
-      <p>
-        Goal: Select tokens to build an equation (first number can use up to 2 digits). If your result matches an enemy
-        target in any lane, the mage casts automatically. Press Esc to clear selection. Large unlocked spell equations may
-        require Enter or Cast Spell to confirm. At Mage Level 10, solve the Mage Tower puzzle shown near the tower and enter only its result.
-      </p>
+      <div class="game-bottom-bar" aria-live="polite">
+        <div class="readout-chip"><strong>Equation</strong> <span id="equationText">Select tokens: Number(s) → Operator → Number</span></div>
+        <div class="readout-chip"><strong>Last Cast</strong> <span id="castResult">No casts yet.</span></div>
+      </div>
     </div>
 
     <div id="spellUnlockOverlay" class="spell-unlock hidden" aria-live="polite">
